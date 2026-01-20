@@ -22,3 +22,11 @@
 - `ls` - List files
 - `pwd` - Print working directory
 - `mkdir` - Make directory
+
+## Best Practices
+
+- Make frequent, small commits
+- Write descriptive commit messages
+- Use .gitignore to exclude unnecessary files
+- Keep repository organized with clear directory structure
+- Document your code with comments
