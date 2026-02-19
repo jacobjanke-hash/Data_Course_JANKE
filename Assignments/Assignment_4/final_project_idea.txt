@@ -1,0 +1,58 @@
+Assignment 4 - Final Project Idea
+===================================
+
+1. PROJECT IDEA DESCRIPTION
+---------------------------
+My final project will analyze the relationship between study habits and 
+academic performance in college students. Specifically, I want to investigate 
+how factors such as hours spent studying per week, sleep quality, study 
+environment preferences, and use of study techniques correlate with GPA.
+
+The goal is to build a predictive model that can help students identify 
+which study behaviors have the strongest impact on academic success, and 
+to create visualizations that clearly communicate these relationships.
+
+
+2. DATA DESCRIPTION
+-------------------
+The data I will use will include the following variables:
+- Student ID (anonymous identifier)
+- Weekly study hours (numeric, 0-50)
+- Sleep hours per night (numeric, 4-12)
+- GPA (numeric, 0.0-4.0)
+- Study environment (categorical: library, home, cafe, mixed)
+- Use of active recall techniques (yes/no)
+- Major field of study (STEM, Humanities, Business, Arts)
+- Year in school (Freshman, Sophomore, Junior, Senior)
+
+
+3. DATA SOURCES
+---------------
+Potential data sources include:
+- Survey data collected from students (primary data collection)
+- Existing educational research datasets from Kaggle or UCI ML Repository
+- Published studies on student academic performance
+- University registrar data (anonymized)
+
+
+4. EXPECTED DATA FORMAT
+-----------------------
+The data will be in CSV format with one row per student and columns for 
+each variable. Example structure:
+
+student_id, study_hours, sleep_hours, gpa, study_environment, active_recall, major, year
+1, 15, 7.5, 3.4, library, yes, STEM, Junior
+2, 8, 6.0, 2.8, home, no, Business, Sophomore
+...
+
+I expect approximately 200-500 observations for a meaningful analysis.
+
+
+5. EXPECTED RESULTS
+-------------------
+I hypothesize that:
+- Study hours will have a positive but diminishing return relationship with GPA
+- Sleep hours will show an optimal range (7-8 hours) for best performance
+- Students using active recall techniques will have higher GPAs on average
+- The combination of adequate sleep and consistent study hours will be 
+  the strongest predictor of academic success
