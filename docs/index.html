@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jacob Janke — Data Analytics Final Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent: #18bc9c;
+      --accent-dark: #149a80;
+      --text: #333;
+      --text-light: #6c757d;
+      --bg: #ffffff;
+      --bg-light: #f8f9fa;
+      --border: #e9ecef;
+      --shadow: 0 2px 15px rgba(0,0,0,0.08);
+      --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+      color: white;
+      padding: 80px 0 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='https://static.vecteezy.com/system/resources/previews/002/041/549/non_2x/abstract-seamless-cross-square-shapes-pattern-abstract-geometric-pattern-for-various-design-purposes-vector.jpg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.3;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 0 20px; }
+    .hero h1 { font-size: 2.6rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+    .hero .subtitle { font-size: 1.15rem; opacity: 0.9; margin-bottom: 8px; font-weight: 300; }
+    .hero .author { font-size: 1rem; opacity: 0.8; margin-top: 16px; }
+    .hero .author span { font-weight: 600; }
+    .hero .course-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 16px;
+      font-size: 0.85rem;
+      margin-top: 14px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Navigation */
+    nav {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    nav .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 52px;
+      overflow-x: auto;
+    }
+    nav a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    nav a:hover, nav a.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* Main Content */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+    section { padding: 50px 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 20px;
+      letter-spacing: -0.3px;
+    }
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    p { margin-bottom: 16px; color: var(--text); }
+    p.lead { font-size: 1.1rem; color: var(--text-light); line-height: 1.8; }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      transition: all 0.25s;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .card .icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #18bc9c22, #3498db22);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+    .card h3 { margin-bottom: 8px; }
+    .card p { font-size: 0.93rem; color: var(--text-light); margin-bottom: 0; }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .stat {
+      text-align: center;
+      padding: 24px 16px;
+      background: var(--bg-light);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .stat .number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+    .stat .label {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    /* Variable Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.92rem;
+    }
+    thead { background: var(--primary); color: white; }
+    th { padding: 12px 16px; text-align: left; font-weight: 600; }
+    td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    tr:hover td { background: var(--bg-light); }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: #f1f3f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: #e74c3c;
+    }
+
+    /* Highlights */
+    .highlight-box {
+      background: linear-gradient(135deg, #18bc9c0a, #3498db0a);
+      border-left: 4px solid var(--accent);
+      padding: 20px 24px;
+      border-radius: 0 8px 8px 0;
+      margin: 24px 0;
+    }
+    .highlight-box p { margin-bottom: 0; }
+
+    /* Skills Tags */
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .skill-tag {
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--primary);
+    }
+    .skill-tag.highlight {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* CTA Button */
+    .cta-section { text-align: center; padding: 60px 0; }
+    .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      padding: 14px 40px;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      transition: all 0.25s;
+      box-shadow: 0 4px 15px rgba(24,188,156,0.3);
+    }
+    .btn-primary:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 6px 20px rgba(24,188,156,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      display: inline-block;
+      background: transparent;
+      color: var(--primary);
+      text-decoration: none;
+      padding: 14px 40px;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      transition: all 0.25s;
+      margin-left: 12px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Findings List */
+    .findings-list { list-style: none; padding: 0; }
+    .findings-list li {
+      padding: 14px 0 14px 36px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .findings-list li:last-child { border-bottom: none; }
+    .findings-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 0.88rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.8rem; }
+      .hero { padding: 50px 0 40px; }
+      section { padding: 36px 0; }
+      h2 { font-size: 1.4rem; }
+      .btn-secondary { margin-left: 0; margin-top: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Study Habits &amp; Academic Performance in College Students</h1>
+      <p class="subtitle">A data-driven investigation into the factors that predict GPA — featuring regression modeling, random forest ML, and interactive visualizations</p>
+      <p class="author">By <span>Jacob Janke</span></p>
+      <div class="course-badge">BIOL 3100 — Data Analytics Final Project</div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-inner container">
+      <a href="#overview" class="active">Overview</a>
+      <a href="#data">Data</a>
+      <a href="#methods">Methods</a>
+      <a href="#findings">Key Findings</a>
+      <a href="#skills">New Skills</a>
+      <a href="#report">Full Report</a>
+      <a href="https://github.com/jacobjanke-hash/Data_Course_JANKE" target="_blank">GitHub ↗</a>
+    </div>
+  </nav>
+
+  <!-- Overview Section -->
+  <section id="overview">
+    <div class="container">
+      <h2>Project Overview</h2>
+      <p class="lead">
+        Every semester, thousands of college students struggle to reach their academic goals despite investing long hours of study.
+        This project investigates whether it's just about <em>how much</em> you study — or whether <em>how</em> you study matters more.
+      </p>
+      <p>
+        Using data from <strong>250 undergraduate students</strong> across five majors, we analyze the relationships between study habits, lifestyle factors, and GPA.
+        We employ both traditional statistical modeling (multiple linear regression) and modern machine learning (random forest) to identify the strongest predictors of academic success.
+      </p>
+
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="number">250</span>
+          <span class="label">Students Surveyed</span>
+        </div>
+        <div class="stat">
+          <span class="number">11</span>
+          <span class="label">Variables Measured</span>
+        </div>
+        <div class="stat">
+          <span class="number">5</span>
+          <span class="label">Academic Majors</span>
+        </div>
+        <div class="stat">
+          <span class="number">2</span>
+          <span class="label">Predictive Models</span>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <p><strong>Research Questions:</strong> (1) Which study habits and lifestyle factors most strongly predict GPA? (2) Can we build a reliable machine learning model to predict academic performance from these factors?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Section -->
+  <section id="data">
+    <div class="container">
+      <h2>The Data</h2>
+      <p>
+        The dataset contains self-reported survey responses from 250 undergraduate students at a mid-sized university, collected during the Fall semester.
+        Variables capture study behavior, sleep patterns, class attendance, stress, and academic performance.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Variable</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>gpa</code></td><td>Numeric</td><td>Cumulative GPA on a 4.0 scale (outcome variable)</td></tr>
+          <tr><td><code>study_hours_weekly</code></td><td>Numeric</td><td>Hours spent studying per week (0–40)</td></tr>
+          <tr><td><code>sleep_hours</code></td><td>Numeric</td><td>Average hours of sleep per night (4–10)</td></tr>
+          <tr><td><code>active_recall</code></td><td>Binary</td><td>Whether the student uses active recall techniques (Yes/No)</td></tr>
+          <tr><td><code>attendance_rate</code></td><td>Numeric</td><td>Percentage of classes attended (50–100%)</td></tr>
+          <tr><td><code>stress_level</code></td><td>Integer</td><td>Self-reported stress level (1 = low, 10 = high)</td></tr>
+          <tr><td><code>study_environment</code></td><td>Categorical</td><td>Primary study location (Library, Dorm, Coffee Shop, Home)</td></tr>
+          <tr><td><code>major</code></td><td>Categorical</td><td>Academic major (Biology, English, CS, Psychology, Business)</td></tr>
+          <tr><td><code>year</code></td><td>Ordinal</td><td>Class year (Freshman through Senior)</td></tr>
+          <tr><td><code>extracurricular_hours</code></td><td>Numeric</td><td>Hours per week on extracurricular activities (0–20)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Methods Section -->
+  <section id="methods">
+    <div class="container">
+      <h2>Analytical Approach</h2>
+      <p>We used a two-pronged analytical strategy to explore and model the relationships in the data:</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="icon">📊</div>
+          <h3>Exploratory Data Analysis</h3>
+          <p>Distribution analysis, scatter plots with trend lines, correlation heatmaps, and grouped comparisons across majors and class years to identify patterns.</p>
+        </div>
+        <div class="card">
+          <div class="icon">📈</div>
+          <h3>Multiple Linear Regression</h3>
+          <p>Traditional parametric model predicting GPA from study hours, sleep, active recall, attendance, and stress. Validated with ANOVA and diagnostic plots.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🌲</div>
+          <h3>Random Forest (ML)</h3>
+          <p>Ensemble machine learning model with 500 trees trained on a 75/25 train-test split. Provides variable importance rankings and non-linear modeling.</p>
+        </div>
+        <div class="card">
+          <div class="icon">🔮</div>
+          <h3>Model Comparison</h3>
+          <p>Head-to-head evaluation of both models on held-out test data using RMSE, R², and MAE metrics to assess predictive accuracy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Findings -->
+  <section id="findings">
+    <div class="container">
+      <h2>Key Findings</h2>
+
+      <ul class="findings-list">
+        <li><strong>Study hours matter, but quality matters more.</strong> Students using active recall techniques achieve notably higher GPAs at every level of study investment.</li>
+        <li><strong>Sleep is not optional.</strong> Sleep hours showed a significant positive association with GPA. Students getting fewer than 6 hours consistently underperformed.</li>
+        <li><strong>Show up.</strong> Attendance rate was a robust predictor across all models — simply being present provides a measurable academic benefit.</li>
+        <li><strong>Stress is a silent GPA killer.</strong> Higher self-reported stress was significantly associated with lower GPAs, independent of study habits.</li>
+        <li><strong>Both models agree.</strong> Linear regression and random forest identified the same top predictors, providing strong converging evidence.</li>
+      </ul>
+
+      <div class="highlight-box" style="margin-top: 30px;">
+        <p><strong>Model Performance:</strong> Both models explain a substantial share of GPA variance. The linear regression and random forest achieved comparable R² values on held-out test data, suggesting the underlying relationships are largely linear in this dataset.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- New Skills -->
+  <section id="skills">
+    <div class="container">
+      <h2>New Skills Demonstrated</h2>
+      <p>This project demonstrates two techniques not covered in the course curriculum:</p>
+
+      <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card">
+          <div class="icon">✨</div>
+          <h3>Interactive Visualizations with Plotly</h3>
+          <p>
+            Converted static ggplot2 figures into interactive HTML widgets that support hovering, zooming, panning, and legend filtering.
+            Includes a 3D scatter plot showing the interplay between study hours, sleep, and GPA.
+          </p>
+          <div class="skills-row" style="margin-top: 12px;">
+            <span class="skill-tag highlight">plotly</span>
+            <span class="skill-tag">ggplotly()</span>
+            <span class="skill-tag">plot_ly()</span>
+            <span class="skill-tag">3D scatter</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="icon">🤖</div>
+          <h3>Random Forest Machine Learning</h3>
+          <p>
+            Built a 500-tree random forest model using the <code>randomForest</code> package. Implemented train/test splitting, variable importance analysis, and rigorous out-of-sample performance evaluation.
+          </p>
+          <div class="skills-row" style="margin-top: 12px;">
+            <span class="skill-tag highlight">randomForest</span>
+            <span class="skill-tag">Train/Test Split</span>
+            <span class="skill-tag">Variable Importance</span>
+            <span class="skill-tag">RMSE / R² / MAE</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 30px;">Tools &amp; Packages Used</h3>
+      <div class="skills-row">
+        <span class="skill-tag">R</span>
+        <span class="skill-tag">ggplot2</span>
+        <span class="skill-tag">dplyr</span>
+        <span class="skill-tag">tidyr</span>
+        <span class="skill-tag">plotly</span>
+        <span class="skill-tag">randomForest</span>
+        <span class="skill-tag">corrplot</span>
+        <span class="skill-tag">kableExtra</span>
+        <span class="skill-tag">broom</span>
+        <span class="skill-tag">R Markdown</span>
+        <span class="skill-tag">GitHub Pages</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA: View Full Report -->
+  <section id="report" class="cta-section" style="background: var(--bg-light);">
+    <div class="container">
+      <h2>Explore the Full Analysis</h2>
+      <p style="max-width: 600px; margin: 0 auto 28px; color: var(--text-light);">
+        The complete report includes all figures, statistical output, interactive Plotly charts, model diagnostics, and detailed interpretations.
+      </p>
+      <a href="report.html" class="btn-primary">View Full Report →</a>
+      <a href="https://github.com/jacobjanke-hash/Data_Course_JANKE/tree/main/Final_Project" class="btn-secondary" target="_blank">Source Code</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>Jacob Janke · BIOL 3100 Data Analytics · <a href="https://github.com/jacobjanke-hash/Data_Course_JANKE">GitHub Repository</a></p>
+    </div>
+  </footer>
+
+  <!-- Smooth scroll + active nav -->
+  <script>
+    document.querySelectorAll('nav a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('nav a[href^="#"]');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const top = section.offsetTop - 80;
+        if (window.scrollY >= top) current = section.id;
+      });
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+      });
+    });
+  </script>
+
+</body>
+</html>
