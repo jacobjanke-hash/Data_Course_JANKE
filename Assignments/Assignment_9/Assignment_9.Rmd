@@ -1,44 +1,348 @@
 ---
-output: 
-html_document:
-  number_sections=TRUE
-pagetitle: Assignment_9
+title: "Assignment 9: Predicting Graduate School Admission"
+author: "Jacob Janke"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    theme: readable
 ---
 
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 8,
+  fig.height = 5,
+  fig.align = "center"
+)
+
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(tidyr)
+library(forcats)
+library(broom)
+library(pROC)
+library(car)
+library(knitr)
+library(scales)
 ```
 
-# **Assignment 9**
+### Introduction
 
-In this assignment, you will use R (within R-Studio) to:
-  
-+ Load and clean a real data set
-+ Conduct exploratory analyses, including informative figures
-+ Build and test appropriate models
-+ Draw conclusions about your data
-+ Combine all of the above into a well-documented R-Markdown report and export (knit) it into an HTML file
+The goal of this assignment is to determine which applicant characteristics are associated with graduate school admission. The outcome variable is **admit** (1 = admitted, 0 = not admitted). Predictors include:
 
-**All file paths should be relative, starting from *your* Assignment_9 directory!!**
+- **gre**: GRE score
+- **gpa**: Undergraduate GPA
+- **rank**: Undergraduate institution rank (1 = highest tier, 4 = lowest tier)
 
-**This means that you need to create a new R-Project named "Assignment_9.Rproj" in your Assignment_9 directory, and work from scripts within that.**
+I perform exploratory data analysis (EDA), clean and prepare the data, fit logistic regression models, evaluate model performance, and interpret results in terms of odds ratios.
 
+### Data Loading and Cleaning
 
-## **For credit...**
+```{r load-clean-data}
+# Use a relative path from Assignments/Assignment_9 to Data/
+admissions_raw <- read_csv("../../Data/GradSchool_Admissions.csv", show_col_types = FALSE)
 
-1.  Push a completed version of your Rproj and R-markdown file (details at end of this assignment) to GitHub
-2.  Your score will also depend on your analyses and presentation of your final report
+# Initial structure
+str(admissions_raw)
 
-____________
+# Cleaned analysis dataset
+admissions <- admissions_raw %>%
+  mutate(
+    admit = as.integer(admit),
+    admit_factor = factor(admit, levels = c(0, 1), labels = c("Not Admitted", "Admitted")),
+    rank = factor(rank, levels = c(1, 2, 3, 4), ordered = TRUE)
+  )
 
-# Your tasks:
+# Data quality checks
+missing_summary <- colSums(is.na(admissions))
+duplicate_rows <- sum(duplicated(admissions_raw))
 
-+ Use the data set "/Data/GradSchool_Admissions.csv"
-+ You will explore and model the predictors of graduate school admission
-  - the "admit" column is coded as 1=success and 0=failure (that's binary, so model appropriately)
-  - the other columns are the GRE score, the GPA, and the rank of the undergraduate institution, where I is "top-tier."
-+ Document your data explorations, figures, and conclusions in a reproducible R-markdown report
-+ That means I want to see, in your html report, your process of model evaluation and selection. Here's an [example](https://gzahn.github.io/data-course/Repository/Assignments/Assignment_9/example.html){target="_blank"}
-+ Upload your **self-contained** R project, including knitted HTML report, to GitHub in *your* Assignment_9 directory
+missing_summary
+duplicate_rows
 
+# Basic range checks
+admissions %>%
+  summarise(
+    min_gre = min(gre),
+    max_gre = max(gre),
+    min_gpa = min(gpa),
+    max_gpa = max(gpa)
+  )
+```
+
+**Cleaning notes:**
+
+- No missing values were found.
+- No duplicate rows were found.
+- GRE and GPA ranges are reasonable.
+- I converted `rank` to an ordered factor and created `admit_factor` for clear plotting labels.
+
+### Exploratory Data Analysis
+
+#### Summary Statistics
+
+```{r summary-statistics}
+summary(admissions)
+
+numeric_summary <- admissions %>%
+  select(admit, gre, gpa) %>%
+  summarise(
+    across(
+      everything(),
+      list(
+        mean = ~mean(.),
+        sd = ~sd(.),
+        min = ~min(.),
+        q1 = ~quantile(., 0.25),
+        median = ~median(.),
+        q3 = ~quantile(., 0.75),
+        max = ~max(.)
+      ),
+      .names = "{.col}_{.fn}"
+    )
+  )
+
+kable(numeric_summary, digits = 3, caption = "Numeric summary statistics for admission outcome and predictors.")
+
+rank_counts <- admissions %>% count(rank, name = "n")
+kable(rank_counts, caption = "Counts by undergraduate institution rank.")
+```
+
+#### Predictor Distributions
+
+```{r dist-gre, fig.cap="Distribution of GRE scores."}
+ggplot(admissions, aes(x = gre)) +
+  geom_histogram(binwidth = 30, fill = "steelblue", color = "white", alpha = 0.9) +
+  geom_density(aes(y = after_stat(count * 30)), color = "black", linewidth = 0.8) +
+  labs(title = "GRE Score Distribution", x = "GRE", y = "Count") +
+  theme_minimal()
+```
+
+```{r dist-gpa, fig.cap="Distribution of GPA values."}
+ggplot(admissions, aes(x = gpa)) +
+  geom_histogram(binwidth = 0.15, fill = "darkseagreen", color = "white", alpha = 0.9) +
+  geom_density(aes(y = after_stat(count * 0.15)), color = "black", linewidth = 0.8) +
+  labs(title = "GPA Distribution", x = "GPA", y = "Count") +
+  theme_minimal()
+```
+
+```{r dist-rank, fig.cap="Distribution of undergraduate institution rank (1 = top tier)."}
+ggplot(admissions, aes(x = rank)) +
+  geom_bar(fill = "mediumpurple", alpha = 0.9) +
+  labs(title = "Institution Rank Distribution", x = "Institution Rank", y = "Count") +
+  theme_minimal()
+```
+
+#### Relationships Between Predictors and Admission
+
+```{r relation-gre-admit, fig.cap="GRE by admission status with boxplot and jittered points."}
+ggplot(admissions, aes(x = admit_factor, y = gre, fill = admit_factor)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.35) +
+  scale_fill_manual(values = c("tomato", "steelblue")) +
+  labs(title = "GRE by Admission Outcome", x = "Admission Outcome", y = "GRE") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r relation-gpa-admit, fig.cap="GPA by admission status with boxplot and jittered points."}
+ggplot(admissions, aes(x = admit_factor, y = gpa, fill = admit_factor)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.35) +
+  scale_fill_manual(values = c("tomato", "steelblue")) +
+  labs(title = "GPA by Admission Outcome", x = "Admission Outcome", y = "GPA") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r relation-rank-admit, fig.cap="Admission rates by undergraduate institution rank."}
+admit_by_rank <- admissions %>%
+  group_by(rank) %>%
+  summarise(admit_rate = mean(admit), n = n(), .groups = "drop")
+
+kable(admit_by_rank, digits = 3, caption = "Observed admission rate by institution rank.")
+
+ggplot(admissions, aes(x = rank, fill = admit_factor)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(values = c("tomato", "steelblue")) +
+  labs(
+    title = "Proportion Admitted by Institution Rank",
+    x = "Institution Rank",
+    y = "Proportion",
+    fill = "Outcome"
+  ) +
+  theme_minimal()
+```
+
+#### Correlation Analysis
+
+```{r correlation-analysis, fig.cap="Correlation heatmap among numeric variables (rank converted to numeric for this analysis)."}
+corr_df <- admissions %>%
+  mutate(rank_numeric = as.numeric(rank)) %>%
+  select(admit, gre, gpa, rank_numeric)
+
+corr_matrix <- cor(corr_df)
+kable(round(corr_matrix, 3), caption = "Correlation matrix (Pearson).")
+
+corr_long <- as.data.frame(as.table(corr_matrix))
+colnames(corr_long) <- c("Var1", "Var2", "Correlation")
+
+ggplot(corr_long, aes(Var1, Var2, fill = Correlation)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = sprintf("%.2f", Correlation)), size = 4) +
+  scale_fill_gradient2(low = "firebrick", mid = "white", high = "navy", midpoint = 0) +
+  labs(title = "Correlation Heatmap", x = NULL, y = NULL) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Logistic Regression Modeling
+
+#### Fit Individual Predictor Models and Full Model
+
+```{r fit-models}
+# Logistic models
+model_gre <- glm(admit ~ gre, data = admissions, family = binomial)
+model_gpa <- glm(admit ~ gpa, data = admissions, family = binomial)
+model_rank <- glm(admit ~ rank, data = admissions, family = binomial)
+model_full <- glm(admit ~ gre + gpa + rank, data = admissions, family = binomial)
+model_null <- glm(admit ~ 1, data = admissions, family = binomial)
+
+summary(model_gre)
+summary(model_gpa)
+summary(model_rank)
+summary(model_full)
+```
+
+#### Compare Model Fit
+
+```{r model-comparison}
+mcfadden_r2 <- function(model, null_model) {
+  1 - as.numeric(logLik(model) / logLik(null_model))
+}
+
+model_comparison <- tibble(
+  Model = c("GRE only", "GPA only", "Rank only", "Full model"),
+  AIC = c(AIC(model_gre), AIC(model_gpa), AIC(model_rank), AIC(model_full)),
+  McFadden_R2 = c(
+    mcfadden_r2(model_gre, model_null),
+    mcfadden_r2(model_gpa, model_null),
+    mcfadden_r2(model_rank, model_null),
+    mcfadden_r2(model_full, model_null)
+  )
+)
+
+kable(model_comparison, digits = 3, caption = "Model comparison using AIC and McFadden pseudo-R².")
+```
+
+#### Coefficient Interpretation and Odds Ratios (Full Model)
+
+```{r odds-ratios-full-model}
+odds_table <- tidy(model_full, conf.int = TRUE, exponentiate = TRUE)
+
+kable(
+  odds_table,
+  digits = 3,
+  caption = "Full model odds ratios with 95% confidence intervals."
+)
+```
+
+Interpretation guide:
+
+- An odds ratio (OR) > 1 indicates increased odds of admission as the predictor increases.
+- An OR < 1 indicates decreased odds of admission.
+- For factor levels of `rank`, each level is interpreted relative to rank 1 (top-tier institutions).
+
+### Model Performance and Diagnostics
+
+#### Classification Metrics and ROC Curve
+
+```{r performance-metrics, fig.cap="ROC curve for the full logistic regression model."}
+# Predicted probabilities and classes
+admissions <- admissions %>%
+  mutate(
+    pred_prob_full = predict(model_full, type = "response"),
+    pred_class_full = if_else(pred_prob_full >= 0.5, 1L, 0L)
+  )
+
+# Confusion matrix
+conf_mat <- table(Predicted = admissions$pred_class_full, Actual = admissions$admit)
+conf_mat
+
+# Manual performance metrics
+TP <- conf_mat["1", "1"]
+TN <- conf_mat["0", "0"]
+FP <- conf_mat["1", "0"]
+FN <- conf_mat["0", "1"]
+
+accuracy <- (TP + TN) / sum(conf_mat)
+sensitivity <- TP / (TP + FN)
+specificity <- TN / (TN + FP)
+precision <- TP / (TP + FP)
+
+performance_tbl <- tibble(
+  Metric = c("Accuracy", "Sensitivity (Recall)", "Specificity", "Precision"),
+  Value = c(accuracy, sensitivity, specificity, precision)
+)
+
+kable(performance_tbl, digits = 3, caption = "Classification metrics at a 0.50 threshold.")
+
+# ROC + AUC
+roc_obj <- roc(admissions$admit, admissions$pred_prob_full, quiet = TRUE)
+auc_value <- as.numeric(auc(roc_obj))
+auc_value
+
+plot(roc_obj, col = "blue", lwd = 2, main = paste("ROC Curve (AUC =", round(auc_value, 3), ")"))
+abline(a = 0, b = 1, lty = 2, col = "gray40")
+```
+
+#### Additional Diagnostics
+
+```{r diagnostics}
+# 1) Multicollinearity diagnostics
+vif_values <- vif(model_full)
+vif_values
+
+# 2) Deviance residual summary (fit check)
+resid_summary <- summary(residuals(model_full, type = "deviance"))
+resid_summary
+
+# 3) Influential points via Cook's distance
+cooks_d <- cooks.distance(model_full)
+
+plot(
+  cooks_d,
+  type = "h",
+  main = "Cook's Distance for Full Model",
+  ylab = "Cook's distance",
+  xlab = "Observation"
+)
+abline(h = 4 / nrow(admissions), col = "red", lty = 2)
+
+# 4) Leverage diagnostics
+plot(
+  hatvalues(model_full),
+  ylab = "Leverage",
+  xlab = "Observation",
+  main = "Leverage Values"
+)
+abline(h = 2 * mean(hatvalues(model_full)), col = "red", lty = 2)
+```
+
+### Conclusions
+
+Based on the EDA and logistic regression models:
+
+1. **GPA and GRE** are positively associated with admission probability.
+2. **Institution rank matters**: applicants from lower-tier institutions (higher numeric rank) generally have lower odds of admission relative to top-tier institutions.
+3. The **full model** performs better than single-predictor models by combining academic performance and institutional context.
+4. Diagnostics indicate the model is reasonably stable and suitable for inference in this assignment context.
+
+Overall, admission appears to be most strongly predicted by a combination of applicant achievement (GPA, GRE) and undergraduate institution rank.

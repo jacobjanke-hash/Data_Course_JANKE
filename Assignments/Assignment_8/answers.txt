@@ -1,0 +1,45 @@
+Assignment 8 - Answers
+Author: Jacob Janke
+
+1. Are any of your predicted response values from your best model scientifically meaningless? Explain.
+
+   My best model (mod5: GrowthRate ~ Light * Species * Humidity + Nitrogen * Humidity + Temperature)
+   did not produce negative predicted values within the hypothetical range I tested. However, if we
+   were to extrapolate further beyond the range of the original data (e.g., very high Nitrogen values
+   like 100+, or extreme temperatures), the linear model could predict negative growth rates, which
+   would be scientifically meaningless since a mushroom cannot have a negative growth rate. Additionally,
+   some extrapolated predictions at the edges of the data range (e.g., Nitrogen = 50 or 60, which are
+   beyond the max of 45 in the data) should be interpreted with caution, as the model is extrapolating
+   beyond observed conditions. Linear models assume relationships continue indefinitely in a straight
+   line, but biological growth rates are bounded by zero and have natural upper limits.
+
+2. In your plots, did you find any non-linear relationships? Do a bit of research online and give a
+   link to at least one resource explaining how to deal with modeling non-linear relationships in R.
+
+   Yes, when examining the exploratory plots (particularly GrowthRate vs Nitrogen faceted by Light),
+   there appear to be non-linear (curved) relationships. The growth rate does not increase or decrease
+   in a perfectly straight line with respect to some predictors. For example, the relationship between
+   Nitrogen and GrowthRate appears somewhat curved, especially at higher Nitrogen concentrations.
+
+   A useful resource for dealing with non-linear relationships in R:
+   https://www.statmethods.net/stats/regression.html
+
+   This resource explains polynomial regression (e.g., using I(x^2) in formulas), log transformations,
+   and the use of nls() for fitting non-linear least squares models in R.
+
+3. Write the code you would use to model the data found in "/Data/non_linear_relationship.csv"
+   with a linear model (there are a few ways of doing this).
+
+   # Method 1: Polynomial regression (quadratic term)
+   nl_data <- read.csv("../../Data/non_linear_relationship.csv")
+   poly_mod <- lm(response ~ poly(predictor, 2), data = nl_data)
+   summary(poly_mod)
+
+   # Method 2: Log-transform the predictor (if predictor values suggest log scale)
+   nl_data$log_pred <- log(nl_data$predictor + 1)
+   log_mod <- lm(response ~ log_pred, data = nl_data)
+   summary(log_mod)
+
+   # Method 3: Use I() to include a squared term directly in the formula
+   quad_mod <- lm(response ~ predictor + I(predictor^2), data = nl_data)
+   summary(quad_mod)
