@@ -15,3 +15,7 @@ Thumbs.db
 
 # Personal notes
 private/
+
+# Keep presentation script local only
+Final_Project/Presentation_Script.md
+Final_Project/Presentation_Script.pdf
