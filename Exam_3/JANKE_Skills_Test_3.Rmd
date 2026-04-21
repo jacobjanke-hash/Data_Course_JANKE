@@ -1,0 +1,205 @@
+---
+title: "Exam 3 - Skills Test"
+author: "Jacob Janke"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Task 1: Load and Clean FacultySalaries_1995.csv
+
+First, I'll load the necessary libraries and import the data.
+
+```{r load_libraries}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(broom)
+```
+
+```{r load_faculty_data}
+# Load the faculty salaries data
+faculty <- read.csv("FacultySalaries_1995.csv")
+
+# View the structure
+head(faculty)
+```
+
+Now I need to tidy this data. The issue is that we have separate columns for different ranks (Full, Assoc, Assistant) but we need them in a long format with Rank as a variable.
+
+```{r tidy_faculty_data}
+# Tidy the data by pivoting the salary columns
+faculty_tidy <- faculty %>%
+  select(State, Tier, AvgFullProfSalary, AvgAssocProfSalary, AvgAssistProfSalary) %>%
+  pivot_longer(
+    cols = starts_with("Avg"),
+    names_to = "Rank",
+    values_to = "Salary"
+  ) %>%
+  mutate(
+    Rank = case_when(
+      Rank == "AvgFullProfSalary" ~ "Full",
+      Rank == "AvgAssocProfSalary" ~ "Associate",
+      Rank == "AvgAssistProfSalary" ~ "Assistant"
+    ),
+    Rank = factor(Rank, levels = c("Assistant", "Associate", "Full"))
+  )
+
+head(faculty_tidy)
+```
+
+Now I'll recreate the graph from Fig1.png:
+
+```{r fig1_recreation, fig.align='center', fig.width=10, fig.height=5}
+ggplot(faculty_tidy, aes(x = Rank, y = Salary, fill = Rank)) +
+  geom_boxplot() +
+  facet_grid(~ Tier) +
+  labs(
+    x = "Rank",
+    y = "Salary"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+---
+
+# Task 2: Build ANOVA Model
+
+Building an ANOVA model to test the influence of State, Tier, and Rank on Salary without interactions:
+
+```{r anova_model}
+# Build the ANOVA model
+anova_model <- aov(Salary ~ State + Tier + Rank, data = faculty_tidy)
+
+# Display the summary
+summary(anova_model)
+```
+
+The ANOVA results show that State, Tier, and Rank all have significant effects on faculty salaries.
+
+---
+
+# Task 3: Load and Tidy Juniper_Oils.csv
+
+Now loading the Juniper oils dataset:
+
+```{r load_juniper_data}
+# Load the data
+juniper <- read.csv("Juniper_Oils.csv")
+
+# View the structure
+head(juniper)
+```
+
+The data needs to be tidied - we need to convert the chemical compound columns into a long format:
+
+```{r tidy_juniper_data}
+# List of chemical compounds (as they appear in the data with dots)
+chemicals_in_data <- c("alpha.pinene","para.cymene","alpha.terpineol","cedr.9.ene",
+                       "alpha.cedrene","beta.cedrene","cis.thujopsene","alpha.himachalene",
+                       "beta.chamigrene","cuparene","compound.1","alpha.chamigrene",
+                       "widdrol","cedrol","beta.acorenol","alpha.acorenol",
+                       "gamma.eudesmol","beta.eudesmol","alpha.eudesmol","cedr.8.en.13.ol",
+                       "cedr.8.en.15.ol","compound.2","thujopsenal")
+
+# Original chemical names with hyphens for display
+chemicals_display <- c("alpha-pinene","para-cymene","alpha-terpineol","cedr-9-ene",
+                       "alpha-cedrene","beta-cedrene","cis-thujopsene","alpha-himachalene",
+                       "beta-chamigrene","cuparene","compound 1","alpha-chamigrene",
+                       "widdrol","cedrol","beta-acorenol","alpha-acorenol",
+                       "gamma-eudesmol","beta-eudesmol","alpha-eudesmol","cedr-8-en-13-ol",
+                       "cedr-8-en-15-ol","compound 2","thujopsenal")
+
+# Create a named vector for mapping
+chem_mapping <- setNames(chemicals_display, chemicals_in_data)
+
+# Tidy the data
+juniper_tidy <- juniper %>%
+  select(YearsSinceBurn, all_of(chemicals_in_data)) %>%
+  pivot_longer(
+    cols = all_of(chemicals_in_data),
+    names_to = "ChemicalID",
+    values_to = "Concentration"
+  ) %>%
+  mutate(ChemicalID = chem_mapping[ChemicalID])
+
+head(juniper_tidy)
+```
+
+---
+
+# Task 4: Create Graph of YearsSinceBurn vs Concentration
+
+Creating a faceted graph showing the relationship between years since burn and chemical concentrations:
+
+```{r fig2_recreation, fig.align='center', fig.width=12, fig.height=14}
+ggplot(juniper_tidy, aes(x = YearsSinceBurn, y = Concentration)) +
+  geom_smooth(method = "loess", se = TRUE, color = "blue", fill = "grey80") +
+  facet_wrap(~ ChemicalID, scales = "free_y", ncol = 5) +
+  labs(
+    x = "YearsSinceBurn",
+    y = "Concentration"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 9),
+    axis.text = element_text(size = 7),
+    panel.grid = element_line(color = "grey90")
+  )
+```
+
+---
+
+# Task 5: GLM Model to Find Significant Chemicals
+
+Building a generalized linear model to test which chemicals are significantly affected by years since burn:
+
+```{r glm_model}
+# Build a GLM model with interaction between ChemicalID and YearsSinceBurn
+glm_model <- lm(Concentration ~ ChemicalID * YearsSinceBurn, data = juniper_tidy)
+
+# Use broom to tidy the model output
+glm_tidy <- tidy(glm_model)
+
+# Find chemicals with significant interaction with YearsSinceBurn
+significant_interactions <- glm_tidy %>%
+  filter(grepl(":YearsSinceBurn", term) & p.value < 0.05)
+
+# Extract the chemical names from significant interactions
+sig_chem_names <- gsub("ChemicalID", "", 
+                       gsub(":YearsSinceBurn", "", significant_interactions$term))
+
+# Get all terms (main effects and interactions) for these significant chemicals
+significant_chemicals <- glm_tidy %>%
+  filter(
+    term %in% paste0("ChemicalID", sig_chem_names) |
+    term %in% paste0("ChemicalID", sig_chem_names, ":YearsSinceBurn")
+  ) %>%
+  mutate(term = gsub("ChemicalID", "", term)) %>%
+  arrange(p.value) %>%
+  select(term, estimate, std.error, statistic, p.value)
+
+# Display the significant chemicals
+print(significant_chemicals, n = Inf)
+```
+
+The table above shows the chemicals that have concentrations significantly affected by the number of years since the burn event. These chemicals show either significant increases or decreases in concentration over time, as indicated by their coefficient estimates and p-values less than 0.05.
+
+---
+
+# Summary
+
+This exam covered:
+
+1. **Data tidying**: Transformed the FacultySalaries dataset from wide to long format to enable proper analysis and visualization
+2. **ANOVA modeling**: Built a model to test the effects of State, Tier, and Rank on faculty salaries
+3. **Data wrangling**: Tidied the Juniper oils dataset by converting multiple chemical columns into a long format
+4. **Data visualization**: Created faceted plots to visualize trends in chemical concentrations over time
+5. **Statistical modeling**: Used GLM to identify which chemicals show significant changes in concentration based on years since burn
+
+All analyses were completed using relative file paths within the R project structure.
