@@ -46,6 +46,20 @@
       opacity: 0.3;
     }
     .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 0 20px; }
+    .hero-headshot {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.9);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      object-fit: cover;
+      margin: 0 auto 24px;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .hero-headshot:hover {
+      transform: scale(1.05);
+    }
     .hero h1 { font-size: 2.6rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
     .hero .subtitle { font-size: 1.15rem; opacity: 0.9; margin-bottom: 8px; font-weight: 300; }
     .hero .author { font-size: 1rem; opacity: 0.8; margin-top: 16px; }
@@ -398,6 +412,11 @@
     @media (max-width: 768px) {
       .hero h1 { font-size: 1.8rem; }
       .hero { padding: 50px 0 40px; }
+      .hero-headshot {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 20px;
+      }
       section { padding: 36px 0; }
       h2 { font-size: 1.4rem; }
       .btn-secondary { margin-left: 0; margin-top: 10px; }
@@ -415,6 +434,7 @@
   <!-- Hero -->
   <div class="hero">
     <div class="hero-content">
+      <img src="jacob_janke_headshot.jpg" alt="Jacob Janke" class="hero-headshot">
       <h1>Study Habits &amp; Academic Performance in College Students</h1>
       <p class="subtitle">A data-driven investigation into the factors that predict GPA — featuring regression modeling, random forest ML, and interactive visualizations</p>
       <p class="author">By <span>Jacob Janke</span></p>
