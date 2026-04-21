@@ -294,6 +294,106 @@
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
+    /* Resume Section Styles */
+    .resume-header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 2px solid var(--accent);
+      margin-bottom: 30px;
+    }
+    .resume-header h2 {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .resume-contact {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      margin-top: 8px;
+    }
+    .resume-contact a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .resume-contact a:hover {
+      text-decoration: underline;
+    }
+    .resume-section {
+      margin: 30px 0;
+    }
+    .resume-section h3 {
+      color: var(--primary);
+      font-size: 1.3rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .resume-item {
+      margin-bottom: 24px;
+    }
+    .resume-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .resume-item-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+    .resume-item-subtitle {
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 2px;
+    }
+    .resume-item-date {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    .resume-item-details {
+      color: var(--text-light);
+      font-size: 0.93rem;
+      margin-bottom: 8px;
+    }
+    .resume-item ul {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+    }
+    .resume-item li {
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 0.93rem;
+      line-height: 1.6;
+    }
+    .resume-skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .resume-skill-category {
+      background: var(--bg-light);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .resume-skill-category strong {
+      color: var(--primary);
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    .resume-skill-category p {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .hero h1 { font-size: 1.8rem; }
@@ -301,6 +401,12 @@
       section { padding: 36px 0; }
       h2 { font-size: 1.4rem; }
       .btn-secondary { margin-left: 0; margin-top: 10px; }
+      .resume-item-header {
+        flex-direction: column;
+      }
+      .resume-item-date {
+        margin-top: 4px;
+      }
     }
   </style>
 </head>
@@ -324,6 +430,7 @@
       <a href="#methods">Methods</a>
       <a href="#findings">Key Findings</a>
       <a href="#skills">New Skills</a>
+      <a href="#resume">Resume</a>
       <a href="#report">Full Report</a>
       <a href="https://github.com/jacobjanke-hash/Data_Course_JANKE" target="_blank">GitHub ↗</a>
     </div>
@@ -495,6 +602,140 @@
         <span class="skill-tag">broom</span>
         <span class="skill-tag">R Markdown</span>
         <span class="skill-tag">GitHub Pages</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Resume Section -->
+  <section id="resume">
+    <div class="container">
+      <div class="resume-header">
+        <h2>JACOB JANKE</h2>
+        <div class="resume-contact">
+          Provo, UT 84601 | (509) 992-4761 | <a href="mailto:jacobyjanke@gmail.com">jacobyjanke@gmail.com</a>
+        </div>
+      </div>
+
+      <!-- Professional Summary -->
+      <div class="resume-section">
+        <h3>Professional Summary</h3>
+        <p>
+          Biology student with Human Anatomy coursework and 100+ hours emergency room experience, combining clinical knowledge with proven elite sales performance (top 0.1% nationally, $750,000 single-season revenue). Seeking to leverage medical expertise and consultative selling skills in orthopedic device sales.
+        </p>
+      </div>
+
+      <!-- Education -->
+      <div class="resume-section">
+        <h3>Education</h3>
+        <div class="resume-item">
+          <div class="resume-item-header">
+            <div>
+              <div class="resume-item-title">Bachelor of Science in Biology</div>
+              <div class="resume-item-subtitle">Utah Valley University, Orem, UT</div>
+            </div>
+            <div class="resume-item-date">Expected Graduation: Winter 2026</div>
+          </div>
+          <div class="resume-item-details">
+            <strong>GPA: 3.67/4.0</strong> | Dean's List: Spring 2024, Fall 2024, Spring 2025 | Member, University Honors Society
+          </div>
+          <div class="resume-item-details">
+            <strong>Relevant Coursework:</strong> Human Anatomy & Laboratory, Microbiology, Cell Biology, Molecular Biology, Organic Chemistry I & II, Physics I & II, Statistics, First Aid
+          </div>
+          <p style="margin-top: 8px; font-size: 0.93rem;">
+            Laboratory experience in anatomy, microbiology, and molecular biology techniques with hands-on dissection and clinical specimen analysis
+          </p>
+        </div>
+      </div>
+
+      <!-- Healthcare Experience -->
+      <div class="resume-section">
+        <h3>Healthcare Experience</h3>
+        <div class="resume-item">
+          <div class="resume-item-header">
+            <div>
+              <div class="resume-item-title">Emergency Room Volunteer</div>
+              <div class="resume-item-subtitle">Intermountain Healthcare | Provo, UT</div>
+            </div>
+            <div class="resume-item-date">2023 | 100+ Hours</div>
+          </div>
+          <ul>
+            <li>Assisted with patient transport, room preparation, and medical supply stocking in fast-paced emergency department</li>
+            <li>Observed triage procedures, trauma responses, and surgical preparation protocols while supporting clinical staff</li>
+            <li>Collaborated with nurses and physicians to facilitate patient care, gaining exposure to medical terminology and clinical workflows</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Professional Experience -->
+      <div class="resume-section">
+        <h3>Professional Experience</h3>
+        
+        <div class="resume-item">
+          <div class="resume-item-header">
+            <div>
+              <div class="resume-item-title">Door-to-Door Sales Representative</div>
+              <div class="resume-item-subtitle">Grit Marketing</div>
+            </div>
+            <div class="resume-item-date">May 2025 - August 2025</div>
+          </div>
+          <ul>
+            <li>Achieved $750,000 in territory revenue across 780 accounts in single summer season through consultative selling and relationship-building</li>
+            <li>Earned Golden Door Award, recognizing top 0.1% of sales representatives nationwide for outstanding performance and closing ability</li>
+          </ul>
+        </div>
+
+        <div class="resume-item">
+          <div class="resume-item-header">
+            <div>
+              <div class="resume-item-title">Regional Sales Manager</div>
+              <div class="resume-item-subtitle">Insight Pest Solutions | Sioux Falls, SD</div>
+            </div>
+            <div class="resume-item-date">January 2024 - December 2024</div>
+          </div>
+          <ul>
+            <li>Directed sales team of 15+ representatives driving $1.5 million in recurring revenue with 1,900 accounts over 4-month period</li>
+            <li>Personally contributed $120,000 in account acquisition while simultaneously managing team operations and strategic planning</li>
+            <li>Designed and delivered daily training sessions utilizing proven methodologies to exceed quarterly performance targets</li>
+            <li>Leveraged Excel and CRM systems for metrics tracking, data analysis, and generating strategic insights for revenue optimization</li>
+          </ul>
+        </div>
+
+        <div class="resume-item">
+          <div class="resume-item-header">
+            <div>
+              <div class="resume-item-title">Sales Representative</div>
+              <div class="resume-item-subtitle">Insight Pest Solutions</div>
+            </div>
+            <div class="resume-item-date">May 2023 - August 2023</div>
+          </div>
+          <ul>
+            <li>Produced $55,000 in revenue growth through direct customer engagement and tailored solution recommendations</li>
+            <li>Identified customer needs and delivered customized solutions, achieving high contract value and satisfaction rates</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Skills & Certifications -->
+      <div class="resume-section">
+        <h3>Skills & Certifications</h3>
+        <div class="resume-skills-grid">
+          <div class="resume-skill-category">
+            <strong>Languages</strong>
+            <p>English (Native), Spanish (Proficient)</p>
+          </div>
+          <div class="resume-skill-category">
+            <strong>Technical Skills</strong>
+            <p>Microsoft Office Suite (Excel, Word, PowerPoint), CRM Systems, Data Analysis</p>
+          </div>
+          <div class="resume-skill-category">
+            <strong>Certifications</strong>
+            <p>CPR & First Aid Certified</p>
+          </div>
+          <div class="resume-skill-category">
+            <strong>Core Competencies</strong>
+            <p>Consultative Selling, Team Leadership, Operations Management, Strategic Planning, Medical Terminology</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
