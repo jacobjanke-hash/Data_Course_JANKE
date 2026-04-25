@@ -7,8 +7,8 @@
 # beginning with the letter "A" (Alabama, Alaska, Arizona, Arkansas).
 # 
 # CORRECTIONS FROM EXAM 1:
-# - FIX 1: Manually calculate fatality_rate as (deaths/cases)*100 instead of
-#          using the pre-existing Case_Fatality_Ratio column
+# - FIX 1: Use the existing Case_Fatality_Ratio column from the CSV (as-is)
+#          to find the peak fatality ratio per state
 # - FIX 2: Properly calculate cumulative deaths for the entire US over time
 #          by ensuring correct aggregation and sorting
 # ============================================================================
@@ -94,58 +94,36 @@ cat("Plot saved as 'A_states_deaths_over_time.png'\n\n")
 print(deaths_plot)
 
 # ============================================================================
-# TASK IV: Find peak fatality rate for each state (20 points)
+# TASK IV: Find peak Case_Fatality_Ratio for each state (20 points)
 # ============================================================================
-# *** FIX 1: MANUALLY CALCULATE FATALITY RATE ***
-# Calculate fatality_rate as (deaths / cases) * 100 for each observation
-# Then find the maximum fatality rate for each state
-# DO NOT use the pre-existing Case_Fatality_Ratio column
+# *** FIX 1: USE THE EXISTING Case_Fatality_Ratio COLUMN FROM THE CSV ***
+# Group by state and find the MAXIMUM Case_Fatality_Ratio for each state.
+# Save as `state_max_fatality_rate` data frame.
 
-cat("=== Task IV: Peak Fatality Rate by State (CORRECTED) ===\n")
-cat("*** FIX 1: Calculating fatality rate manually as (deaths/cases)*100 ***\n\n")
+cat("=== Task IV: Peak Case_Fatality_Ratio by State (CORRECTED) ===\n")
+cat("*** FIX 1: Using existing Case_Fatality_Ratio column from CSV ***\n\n")
 
-# First, calculate fatality rate for each row (using base R for compatibility)
-covid_data$calculated_fatality_rate <- (covid_data$deaths / covid_data$cases) * 100
-
-# Verify the calculation with a few examples
-cat("Sample fatality rate calculations:\n")
-alabama_data <- covid_data[covid_data$state == "Alabama", ]
-sample_data <- head(alabama_data[, c("state", "date", "deaths", "cases", 
-                                     "calculated_fatality_rate", "Case_Fatality_Ratio")], 5)
-print(sample_data)
-cat("\n")
-
-# Now find the maximum fatality rate for each state using our calculated values
-# Using base R for better compatibility
-state_max_list <- lapply(split(covid_data, covid_data$state), function(state_data) {
-  max_idx <- which.max(state_data$calculated_fatality_rate)
-  data.frame(
-    state = state_data$state[1],
-    max_fatality_rate = state_data$calculated_fatality_rate[max_idx],
-    date_of_max = state_data$date[max_idx],
-    deaths_at_max = state_data$deaths[max_idx],
-    cases_at_max = state_data$cases[max_idx]
-  )
-})
-state_max_fatality_rate <- do.call(rbind, state_max_list)
-rownames(state_max_fatality_rate) <- NULL
+# Group by state and find the peak (max) Case_Fatality_Ratio for each state
+state_max_fatality_rate <- aggregate(Case_Fatality_Ratio ~ state,
+                                     data = covid_data,
+                                     FUN = function(x) max(x, na.rm = TRUE))
+names(state_max_fatality_rate)[2] <- "max_fatality_rate"
 state_max_fatality_rate <- state_max_fatality_rate[order(-state_max_fatality_rate$max_fatality_rate), ]
+rownames(state_max_fatality_rate) <- NULL
 
 # Display results
-cat("Top 10 states by peak fatality rate (manually calculated):\n")
+cat("Top 10 states by peak Case_Fatality_Ratio:\n")
 print(head(state_max_fatality_rate, 10))
 
-cat("\nBottom 10 states by peak fatality rate:\n")
+cat("\nBottom 10 states by peak Case_Fatality_Ratio:\n")
 print(tail(state_max_fatality_rate, 10))
 
-cat("\nSummary statistics for max fatality rates:\n")
-summary(state_max_fatality_rate$max_fatality_rate)
+cat("\nSummary statistics for peak Case_Fatality_Ratio:\n")
+print(summary(state_max_fatality_rate$max_fatality_rate))
 cat("\n")
 
-# Verify reasonableness - typical fatality rates are 1-5%
-cat("Verification: Fatality rates should typically be in the 1-5% range\n")
-cat("Range in our data: ", round(min(state_max_fatality_rate$max_fatality_rate), 2), "% to ",
-    round(max(state_max_fatality_rate$max_fatality_rate), 2), "%\n\n", sep="")
+cat("Range: ", round(min(state_max_fatality_rate$max_fatality_rate), 2), " to ",
+    round(max(state_max_fatality_rate$max_fatality_rate), 2), "\n\n", sep="")
 
 # ============================================================================
 # TASK V: Create a meaningful plot using state_max_fatality_rate (20 points)
@@ -167,7 +145,7 @@ fatality_plot <- ggplot(top_20_states,
   coord_flip() +
   labs(
     title = "Peak COVID-19 Case Fatality Rates by State",
-    subtitle = "Top 20 US States (Manually Calculated: deaths/cases × 100)",
+    subtitle = "Top 20 US States (Peak Case_Fatality_Ratio from CSV)",
     x = "State",
     y = "Peak Case Fatality Rate (%)",
     caption = "Source: COVID-19 Data Analysis - BIOL3100 Exam 4 (Corrected)"
@@ -290,7 +268,7 @@ cat("\n")
 cat("Task III: Faceted deaths plot saved as 'A_states_deaths_over_time.png'\n")
 cat("\n")
 cat("Task IV:  *** CORRECTED *** state_max_fatality_rate object created\n")
-cat("          - Fatality rate calculated manually as (deaths/cases)*100\n")
+cat("          - Used existing Case_Fatality_Ratio column from CSV (max per state)\n")
 cat("          - ", nrow(state_max_fatality_rate), " states analyzed\n", sep = "")
 cat("          - Fatality rate range: ", round(min(state_max_fatality_rate$max_fatality_rate), 2), 
     "% to ", round(max(state_max_fatality_rate$max_fatality_rate), 2), "%\n", sep = "")
@@ -304,7 +282,7 @@ cat("          - Final US death toll: ", format(max(us_total_deaths$total_deaths
 cat("\n")
 cat("============================================================================\n")
 cat("CORRECTIONS APPLIED:\n")
-cat("  1. Fatality rate manually calculated (not using Case_Fatality_Ratio)\n")
+cat("  1. Used existing Case_Fatality_Ratio column from CSV for peak per state\n")
 cat("  2. US cumulative deaths properly aggregated with verification\n")
 cat("============================================================================\n")
 cat("All tasks completed successfully with corrections!\n")
